@@ -1,0 +1,22 @@
+<template>
+    <div class="loading"></div>
+</template>
+
+<style lang="css" scoped>
+.loading {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #E65100;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  width: 40px;
+  height: 40px;
+}
+
+@keyframes spin {
+  from {
+      transform: rotate(0deg);
+  }
+  to {
+      transform: rotate(360deg);
+  }
+}</style>

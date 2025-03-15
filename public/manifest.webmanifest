@@ -1,0 +1,29 @@
+{
+    "id": "OStore",
+    "name": "Ostore",
+    "short_name": "OStore",
+    "description": "Orange app store for kaios 3.1",
+    "lang": "en-US",
+    "theme_color": "#FFFFFF",
+    "orientation": "natural",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "/ostore_56.png",
+            "type": "image/png",
+            "sizes": "56x56"
+        },
+        {
+            "src": "/ostore_112.png",
+            "type": "image/png",
+            "sizes": "112x112"
+        }
+    ],
+    "b2g_features": {
+        "type": "web",
+        "permissions": {},
+        "version": "1.0.0",
+        "origin": "ostore"
+    }
+}
