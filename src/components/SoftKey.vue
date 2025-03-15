@@ -16,13 +16,15 @@ const props=defineProps({
 const emits=defineEmits(['leftClick','enter','rightClick'])
 
 const onKeyDown=(evt)=>{
-    evt.preventDefault();
-    if(evt.key=='SoftLeft'){
+    if(evt.key=='SoftLeft'&&props.left){
         emits('leftClick')
-    }else if(evt.key=='SoftRight'){
+        evt.preventDefault();
+    }else if(evt.key=='SoftRight'&&props.right){
         emits('rightClick')
-    }else if(evt.key=='Enter'){
+        evt.preventDefault();
+    }else if(evt.key=='Enter'&&props.center){
         emits('enter')
+        evt.preventDefault();
     }
 }
 

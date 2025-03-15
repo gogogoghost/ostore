@@ -22,19 +22,20 @@ watch(modelValue,(newVal)=>{
 })
 
 const onKeyDown=(evt)=>{
-    evt.preventDefault();
     if(evt.key=="ArrowLeft"){
         if(props.modelValue>0){
             emits('update:modelValue',props.modelValue-1)
         }else{
             emits('update:modelValue',props.arr.length-1)
         }
+        evt.preventDefault();
     }else if(evt.key=="ArrowRight"){
         if(props.modelValue<props.arr.length-1){
             emits('update:modelValue',props.modelValue+1)
         }else{
             emits('update:modelValue',0)
         }
+        evt.preventDefault();
     }
 }
 

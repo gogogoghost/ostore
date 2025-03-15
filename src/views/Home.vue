@@ -3,8 +3,8 @@
     <Title>OStore</Title>
     <Tab :arr="['Popular','All','Installed','About']" v-model="currentTab"></Tab>
     <div class="page-content">
-      <Popular v-if="currentTab==0"></Popular>
-      <All v-else-if="currentTab==1"></All>
+      <ServerList v-if="currentTab==0"></ServerList>
+      <ServerList v-else-if="currentTab==1" all></ServerList>
       <Installed v-else-if="currentTab==2"></Installed>
       <About v-else-if="currentTab==3"></About>
     </div>
@@ -15,16 +15,50 @@
 <script setup>
 import Title from '@/components/Title.vue'
 import Tab from '@/components/Tab.vue'
-import SoftKey from '@/components/SoftKey.vue'
-import Loading from '@/components/Loading.vue'
-import { baseUrl, getList } from '@/api/api'
-import {ref} from 'vue'
-import Popular from './Popular.vue'
-import All from './All.vue'
+import {ref,onMounted} from 'vue'
 import Installed from './Installed.vue'
 import About from './About.vue'
+import ServerList from './ServerList.vue'
+import { useInstalledState } from '@/stores/installed'
+import { getList,proxyBaseUrl } from '@/api/api'
 
-const currentTab=ref(2)
+const installed=useInstalledState();
+
+const currentTab=ref(0)
+
+onMounted(async()=>{
+    try{
+        const res=await getList()
+        if(res.code!=0){
+            throw new Error(res.msg)
+        }
+        // appList.value=res.data
+        // get manifest
+        for(const item of res.data){
+            item.baseUrl=proxyBaseUrl+item.origin.replace('http://','')
+            const obj=await (await fetch(proxyBaseUrl+item.manifest_url.replace('http://',''))).json()
+            item.manifestObj=obj
+            // console.log(item)
+            item.version=obj.b2g_features.version;
+            try{
+                let iconSrc=obj.icons[0].src
+                if(iconSrc.startsWith('http')){
+                    item.iconSrc=proxyBaseUrl+iconSrc.replace('http://','')
+                }else{
+                    if(!iconSrc.startsWith('/')){
+                        iconSrc='/'+iconSrc;
+                    }
+                    item.iconSrc=item.baseUrl+iconSrc
+                }
+            }catch(e){
+                item.iconSrc="/kaios_56.png"
+            }
+        }
+        installed.updateAppList(res.data)
+    }catch(e){
+        alert(e.message||"Unkown Error")
+    }
+})
 
 </script>
 
