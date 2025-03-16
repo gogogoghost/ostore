@@ -16,21 +16,32 @@
         </div>
         <SoftKey 
         :center="installBtnText" 
-        :right="(appList[selected]||{}).installedVersion?'Uninstall':null"
+        :right="uninstallBtnText"
         @enter="handleInstall"
         @rightClick="handleUninstall"
         ></SoftKey>
+
+        <Dialog v-if="showDialog">
+            <div class="dialog">
+                <Loading></Loading>
+                <div>{{dialogMessage}}</div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
-import { getAllList,getPopularList, resourceUrl } from '@/api/api';
+import { getAllList,getPopularList, install, resourceUrl, uninstall } from '@/api/api';
 import Loading from '@/components/Loading.vue';
 import {ref,onMounted,onBeforeUnmount,watch,computed} from 'vue'
 import AppItem from '@/components/AppItem.vue';
 import SoftKey from '@/components/SoftKey.vue';
 import { useInstalledState } from '@/stores/installed';
+import Dialog from '@/components/Dialog.vue';
+import { useKeyEventState } from '@/stores/dialog'
+import { addFile, path2fileName } from '@/utils';
 
+const keyEventState=useKeyEventState();
 const installed=useInstalledState();
 
 const props=defineProps({
@@ -47,12 +58,67 @@ const appList=ref([])
 const selected=ref(0)
 
 const items=ref([])
+const dialogMessage=ref("")
+const showDialog=ref(false)
 
-const handleInstall=()=>{
+const handleInstall=async()=>{
+    const o=appList.value[selected.value]
+    if(!window.confirm(`Confirm to install ${o.name} ${o.version}?`)){
+        return
+    }
+    try{
+        showDialog.value=true
+        dialogMessage.value="Downloading..."
+        const res=await (await fetch(o.url)).blob()
+        const sdcard = navigator.b2g.getDeviceStorage("sdcard");
+        const filePath=await addFile(sdcard,res,o.fileName)
+        const rootPath=(await sdcard.getRoot()).path
+        
+        dialogMessage.value="Installing..."
+        const fullPath="/data"+rootPath+'/'+path2fileName(filePath)
+
+        // alert(fullPath)
+        await install(fullPath)
+
+        // refresh list
+        installed.updateInstalledList();
+        // show alert
+        if(o.id=="ostore"){
+            alert("Install Successful. OStore will restart automatically")
+            window.location.reload();
+        }else{
+            alert("Install Successful")
+        }
+    }catch(e){
+        // SecurityError
+        console.error(e)
+        alert(e.message)
+    }finally{
+        showDialog.value=false
+    }
     console.log('install')
 }
-const handleUninstall=()=>{
-    console.log('uninstall')
+const handleUninstall=async()=>{
+    const o=appList.value[selected.value]
+    if(!window.confirm(`Confirm to uninstall ${o.name} ${o.version}?`)){
+        return
+    }
+    //find it
+    try{
+        showDialog.value=true
+        dialogMessage.value="Uninstalling..."
+        await uninstall(o.manifestUrl)
+
+        //refresh list
+        installed.updateInstalledList();
+        // show alert
+        alert("Uninstall Successful")
+    }catch(e){
+        console.error(e)
+        alert(e.message)
+    }finally{
+        showDialog.value=false
+    }
 }
 
 // 1>2 return 1
@@ -81,7 +147,7 @@ const installBtnText=computed(()=>{
     if(!o.installedVersion){
         return "Install"
     }
-    if(o.versionState==1){
+    if(o.versionState==-1){
         return "Downgrade"
     }else if(o.versionState==0){
         return "Reinstall"
@@ -90,12 +156,28 @@ const installBtnText=computed(()=>{
     }
 })
 
+const uninstallBtnText=computed(()=>{
+    const o=appList.value[selected.value]
+    if(!o){
+        return null
+    }
+    if(!o.installedVersion){
+        return null
+    }
+    if(o.id=="ostore"){
+        return null
+    }
+    return "Uninstall"
+})
+
 watch(selected,(newVal)=>{
-    // console.log(items.value[newVal].$props)
     items.value[newVal].$el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 })
 
 const onKeyDown=(evt)=>{
+    if(keyEventState.dialogShow){
+        return
+    }
     if(!loaded.value||appList.value.length==1){
         return
     }
@@ -122,6 +204,11 @@ const updateInstalledVersion=()=>{
         if(obj){
             item.installedVersion=obj.version
             item.versionState=compareVersions(item.version,obj.version)
+            item.manifestUrl=obj.manifest_url
+        }else{
+            item.installedVersion=null
+            item.versionState=null
+            item.manifestUrl=null
         }
     }
 }
@@ -141,7 +228,8 @@ onMounted(async()=>{
         const res=await(props.all?getAllList():getPopularList())
         for(const item of res){
             item.iconSrc=resourceUrl+item.id+'_'+item.icon
-            item.url=resourceUrl+item.id+'_'+item.version+'.zip'
+            item.fileName=item.id+'_'+item.version+'.zip'
+            item.url=resourceUrl+item.fileName
         }
         // console.log(res)
         appList.value=res
@@ -166,5 +254,11 @@ onMounted(async()=>{
 .items{
     flex:1;
     overflow-y: scroll;
+}
+.dialog{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding:20px 0;
 }
 </style>

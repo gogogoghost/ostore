@@ -2,9 +2,9 @@
     <div class="about">
         <img src="/ostore_56.png">
         <div class="name">OStore</div>
-        <div class="version">1.0.0</div>
+        <div class="version">{{version}}</div>
         <div class="desc">Orange app store for kaios 3.1</div>
-        <button ref="check" @click="checkUpdate">Check Update</button>
+        <!-- <button ref="check" @click="checkUpdate">Check Update</button> -->
     </div>
 </template>
 
@@ -12,12 +12,14 @@
 import {onMounted,ref} from 'vue'
 const check=ref(null)
 
+const version=import.meta.env.VITE_APP_VERSION
+
 const checkUpdate=()=>{
     // alert("check")
 }
 
 onMounted(()=>{
-    check.value.focus();
+    // check.value.focus();
 })
 </script>
 

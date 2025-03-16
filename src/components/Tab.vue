@@ -8,6 +8,9 @@
 
 <script setup>
 import {ref,onMounted,onBeforeUnmount,defineEmits,watch,toRefs} from 'vue'
+import { useKeyEventState } from '@/stores/dialog'
+
+const keyEventState=useKeyEventState();
 const props=defineProps({
     modelValue: { type: Number, default: 0 },
     arr:Array
@@ -22,6 +25,9 @@ watch(modelValue,(newVal)=>{
 })
 
 const onKeyDown=(evt)=>{
+    if(keyEventState.dialogShow){
+        return
+    }
     if(evt.key=="ArrowLeft"){
         if(props.modelValue>0){
             emits('update:modelValue',props.modelValue-1)

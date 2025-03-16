@@ -22,7 +22,9 @@
     ],
     "b2g_features": {
         "type": "web",
-        "permissions": {},
+        "permissions": {
+            "device-storage:sdcard":{ "access": "readwrite" }
+        },
         "version": "1.0.0",
         "origin": "ostore"
     }

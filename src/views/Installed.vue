@@ -13,28 +13,78 @@
             ref="items"
             />
         </div>
-        <!-- <SoftKey left="Left" center="Ok" right="Right"></SoftKey> -->
+        <SoftKey :right="uninstallBtnText" @rightClick="handleUninstall"></SoftKey>
+
+        <Dialog v-if="showDialog">
+            <div class="dialog">
+                <Loading></Loading>
+                <div>{{dialogMessage}}</div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
-import { getList,proxyBaseUrl } from '@/api/api';
+import { uninstall } from '@/api/api';
 import Loading from '@/components/Loading.vue';
-import {ref,onMounted,onBeforeUnmount,watch} from 'vue'
+import {ref,onMounted,onBeforeUnmount,watch,computed} from 'vue'
 import AppItem from '@/components/AppItem.vue';
 import { useInstalledState } from '@/stores/installed';
+import { useKeyEventState } from '@/stores/dialog'
+import SoftKey from '@/components/SoftKey.vue';
+import Dialog from '@/components/Dialog.vue';
 
+const keyEventState=useKeyEventState();
 const installed=useInstalledState();
 
 const selected=ref(0)
 
 const items=ref([])
+const showDialog=ref(false)
+const dialogMessage=ref("")
 
 watch(selected,(newVal)=>{
     items.value[newVal].$el.scrollIntoView({ behavior: 'smooth', block: 'center' })
 })
 
+const uninstallBtnText=computed(()=>{
+    const o=installed.appList[selected.value]
+    if(!o){
+        return null
+    }
+    if(o.name=="ostore"){
+        return null
+    }
+    return "Uninstall"
+})
+
+const handleUninstall=async()=>{
+    const o=installed.appList[selected.value]
+    if(!window.confirm(`Confirm to uninstall ${o.manifestObj.name}?`)){
+        return
+    }
+    //find it
+    try{
+        showDialog.value=true
+        dialogMessage.value="Uninstalling..."
+        await uninstall(o.manifest_url)
+
+        //refresh list
+        installed.updateInstalledList();
+        // show alert
+        alert("Uninstall Successful")
+    }catch(e){
+        console.error(e)
+        alert(e.message)
+    }finally{
+        showDialog.value=false
+    }
+}
+
 const onKeyDown=(evt)=>{
+    if(keyEventState.dialogShow){
+        return
+    }
     if(!installed.loaded||installed.appList.length==1){
         return
     }
