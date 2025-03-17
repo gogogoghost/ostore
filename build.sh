@@ -2,6 +2,8 @@
 
 set -e
 
+rm -rf dist
+
 pnpm build
 
 cd dist

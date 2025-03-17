@@ -14,9 +14,14 @@ export default defineConfig(({mode})=>{
     vue(),
     // vueDevTools(),
     VitePWA({
+      injectRegister:false,
       fileName: 'manifest.webmanifest',
       publicPath: '/',
       basePath: '/assets/',
+      selfDestroying:true,
+      workbox: {
+        runtimeCaching: []
+      },
       manifest: {
         id: "ostore",
         name: "Ostore",
