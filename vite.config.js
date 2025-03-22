@@ -45,9 +45,10 @@ export default defineConfig(({mode})=>{
           }
         ],
         b2g_features: {
-          type: "web",
+          // type: "privileged",
           permissions: {
-            "device-storage:sdcard": { access: "readwrite" }
+            "device-storage:sdcard": { access: "readwrite" },
+            "systemXHR": {},
           },
           version: env.VITE_APP_VERSION,
           origin: "ostore"

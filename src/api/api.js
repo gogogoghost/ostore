@@ -1,6 +1,17 @@
-export const baseUrl=import.meta.env.VITE_APPSCMD_BASEURL
+const originFetch=window.fetch
 
-export const serverUrl=import.meta.env.VITE_SERVER_BASEURL
+window.fetch=function(){
+    const args=[...arguments]
+    const patch={mode:'no-cors'}
+    if(args[1]){
+        Object.assign(args[1],patch)
+    }else{
+        args.push(patch)
+    }
+    return originFetch(...args)
+}
+
+export const baseUrl=import.meta.env.VITE_APPSCMD_BASEURL
 
 export const resourceUrl=import.meta.env.VITE_SERVER_DL
 
@@ -13,11 +24,11 @@ export async function getList(){
 }
 
 export async function getAllList(){
-    return await (await fetch(serverUrl+"all.json")).json()
+    return await (await fetch(resourceUrl+"all.json")).json()
 }
 
 export async function getPopularList(){
-    return await (await fetch(serverUrl+"popular.json")).json()
+    return await (await fetch(resourceUrl+"popular.json")).json()
 }
 
 export const proxyBaseUrl=baseUrl+"proxy/"

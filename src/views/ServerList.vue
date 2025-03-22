@@ -96,7 +96,6 @@ const handleInstall=async()=>{
     }finally{
         showDialog.value=false
     }
-    console.log('install')
 }
 const handleUninstall=async()=>{
     const o=appList.value[selected.value]
@@ -227,7 +226,7 @@ onMounted(async()=>{
     try{
         const res=await(props.all?getAllList():getPopularList())
         for(const item of res){
-            item.iconSrc=resourceUrl+item.id+'_'+item.icon
+            item.iconSrc=resourceUrl+item.icon
             item.fileName=item.id+'_'+item.version+'.zip'
             item.url=resourceUrl+item.fileName
         }
