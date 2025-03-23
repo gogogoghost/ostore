@@ -15,8 +15,10 @@
             />
         </div>
         <SoftKey 
+        :left="launchText"
         :center="installBtnText" 
         :right="uninstallBtnText"
+        @leftClick="handleLaunch"
         @enter="handleInstall"
         @rightClick="handleUninstall"
         ></SoftKey>
@@ -60,6 +62,11 @@ const selected=ref(0)
 const items=ref([])
 const dialogMessage=ref("")
 const showDialog=ref(false)
+
+const handleLaunch=()=>{
+    const o=appList.value[selected.value]
+    window.open(o.manifestUrl,'__blank__',"kind=app,noopener=yes")
+}
 
 const handleInstall=async()=>{
     const o=appList.value[selected.value]
@@ -163,6 +170,17 @@ const uninstallBtnText=computed(()=>{
         return null
     }
     return "Uninstall"
+})
+
+const launchText=computed(()=>{
+    const o=appList.value[selected.value]
+    if(!o){
+        return null
+    }
+    if(!o.manifestUrl){
+        return null
+    }
+    return "Launch"
 })
 
 watch(selected,(newVal)=>{

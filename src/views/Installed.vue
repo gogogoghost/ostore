@@ -13,7 +13,7 @@
             ref="items"
             />
         </div>
-        <SoftKey :right="uninstallBtnText" @rightClick="handleUninstall"></SoftKey>
+        <SoftKey left="Launch" @leftClick="handleLaunch" :right="uninstallBtnText" @rightClick="handleUninstall"></SoftKey>
 
         <Dialog v-if="showDialog">
             <div class="dialog">
@@ -57,6 +57,11 @@ const uninstallBtnText=computed(()=>{
     }
     return "Uninstall"
 })
+
+const handleLaunch=()=>{
+    const o=installed.appList[selected.value]
+    window.open(o.manifest_url,'__blank__',"kind=app,noopener=yes")
+}
 
 const handleUninstall=async()=>{
     const o=installed.appList[selected.value]
