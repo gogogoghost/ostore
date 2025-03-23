@@ -39,7 +39,7 @@ import SoftKey from '@/components/SoftKey.vue';
 import { useInstalledState } from '@/stores/installed';
 import Dialog from '@/components/Dialog.vue';
 import { useKeyEventState } from '@/stores/dialog'
-import { addFile, path2fileName } from '@/utils';
+import { saveFile } from '@/utils';
 
 const keyEventState=useKeyEventState();
 const installed=useInstalledState();
@@ -70,13 +70,9 @@ const handleInstall=async()=>{
         showDialog.value=true
         dialogMessage.value="Downloading..."
         const res=await (await fetch(o.url)).blob()
-        const sdcard = navigator.b2g.getDeviceStorage("sdcard");
-        const filePath=await addFile(sdcard,res,o.fileName)
-        const rootPath=(await sdcard.getRoot()).path
-        
-        dialogMessage.value="Installing..."
-        const fullPath="/data"+rootPath+'/'+path2fileName(filePath)
+        const fullPath=await saveFile(res,o.fileName)
 
+        dialogMessage.value="Installing..."
         // alert(fullPath)
         await install(fullPath)
 

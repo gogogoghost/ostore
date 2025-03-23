@@ -47,6 +47,20 @@ export async function install(path) {
     return res.data
 }
 
+export async function installPWA(path) {
+    const res= await(await fetch(baseUrl+"install-pwa",{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: path }) 
+    })).json()
+    if(res.code!=0){
+        throw new Error(res.msg)
+    }
+    return res.data
+}
+
 export async function uninstall(manifestUrl) {
     const res= await(await fetch(baseUrl+"uninstall",{
         method: 'POST',

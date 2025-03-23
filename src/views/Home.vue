@@ -1,12 +1,13 @@
 <template>
   <div class="page-container">
     <Title>OStore</Title>
-    <Tab :arr="['Popular','All','Installed','About']" v-model="currentTab"></Tab>
+    <Tab :arr="['Popular','All','Installed','Manual Install','About']" v-model="currentTab"></Tab>
     <div class="page-content">
       <ServerList v-if="currentTab==0"></ServerList>
       <ServerList v-else-if="currentTab==1" all></ServerList>
       <Installed v-else-if="currentTab==2"></Installed>
-      <About v-else-if="currentTab==3"></About>
+      <Manual v-else-if="currentTab==3"></Manual>
+      <About v-else-if="currentTab==4"></About>
     </div>
     <!-- <SoftKey left="Left" center="Ok" right="Right" @enter="onEnter"></SoftKey> -->
   </div>
@@ -20,6 +21,7 @@ import Installed from './Installed.vue'
 import About from './About.vue'
 import ServerList from './ServerList.vue'
 import { useInstalledState } from '@/stores/installed'
+import Manual from './Manual.vue'
 
 const installed=useInstalledState();
 

@@ -21,7 +21,7 @@ const items=ref([])
 const { modelValue } = toRefs(props);
 
 watch(modelValue,(newVal)=>{
-    items.value[newVal].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    items.value[newVal].scrollIntoView({ behavior: 'smooth', block: 'center' })
 })
 
 const onKeyDown=(evt)=>{
@@ -61,7 +61,6 @@ onBeforeUnmount(()=>{
     overflow-x: hidden;
     margin-bottom:2px;
     .item{
-        min-width:50px;
         text-align: center;
         padding:0 4px;
         &>div{

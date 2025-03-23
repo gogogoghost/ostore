@@ -37,3 +37,11 @@ export function path2fileName(path){
     }
     return path.substring(i+1)
 }
+
+export async function saveFile(blob,fileName){
+    const sdcard = navigator.b2g.getDeviceStorage("sdcard");
+    const filePath=await addFile(sdcard,blob,fileName)
+    const rootPath=(await sdcard.getRoot()).path
+    const fullPath="/data"+rootPath+'/'+path2fileName(filePath)
+    return fullPath
+}

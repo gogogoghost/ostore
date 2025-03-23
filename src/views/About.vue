@@ -40,14 +40,5 @@ onMounted(()=>{
         font-size:12px;
         line-height: 10px;;
     }
-    &>button{
-        margin-top:10px;
-        background-color: #E65100;
-        border-width: 0;
-        padding:6px 12px;
-        border-radius: 5px;
-        box-shadow: none;
-        color:white;
-    }
 }
 </style>
