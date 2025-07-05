@@ -72,6 +72,7 @@ const onKeyDown = (evt) => {
         if (focusedIndex < 0) {
             focusedIndex = focuable.length - 1
         }
+        evt.preventDefault();
         focuable[focusedIndex].value.focus()
         focuable[focusedIndex].value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     } else if (evt.key == "ArrowDown") {
@@ -79,6 +80,7 @@ const onKeyDown = (evt) => {
         if (focusedIndex >= focuable.length) {
             focusedIndex = 0
         }
+        evt.preventDefault();
         focuable[focusedIndex].value.focus()
         focuable[focusedIndex].value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
