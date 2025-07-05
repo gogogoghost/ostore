@@ -141,7 +141,7 @@ onBeforeUnmount(() => {
 
 .zip-file:not(:first-child),
 .install-pwa {
-    margin-top: 5px;
+    margin-top: 8px;
 }
 
 .no-zip-files {
