@@ -4,8 +4,8 @@
         <input type="text" v-model="url" ref="pwaUrl" class="url" />
         <button ref="pwaBtn" @click="onInstallPWA" class="install-pwa">Install PWA</button>
         <h4>Install app from sdcard</h4>
-        <div v-if="zipFileList.length == 0">
-            No zip file found
+        <div v-if="zipFileList.length == 0" class="no-zip-files">
+            No zip files found
         </div>
         <div v-else>
             <button v-for="item in zipFileList" class="zip-file" ref="zipFileRef" @click="onInstallZip(item)">{{
@@ -140,5 +140,11 @@ onBeforeUnmount(() => {
 .zip-file:not(:first-child),
 .install-pwa {
     margin-top: 5px;
+}
+
+.no-zip-files {
+    text-align: center;
+    color: gray;
+    margin-top: 10px;
 }
 </style>
