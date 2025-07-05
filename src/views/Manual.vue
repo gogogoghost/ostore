@@ -1,87 +1,100 @@
 <template>
     <div class="container">
-        <h4>Install app from zip file</h4>
-        <button ref="zipBtn" @click="picker.click()">Install from .zip file</button>
-        <input type="file" ref="picker" class="picker" @change="onFilePick"/>
         <h4>Install PWA from url</h4>
-        <input type="text" v-model="url" ref="pwaUrl" class="url"/>
-        <button ref="pwaBtn" @click="onInstallPWA">Install PWA</button>
+        <input type="text" v-model="url" ref="pwaUrl" class="url" />
+        <button ref="pwaBtn" @click="onInstallPWA" class="install-pwa">Install PWA</button>
+        <h4>Install app from sdcard</h4>
+        <div v-if="zipFileList.length == 0">
+            No zip file found
+        </div>
+        <div v-else>
+            <button v-for="item in zipFileList" class="zip-file" ref="zipFileRef" @click="onInstallZip(item)">{{
+                item.name }}</button>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref,onMounted,onBeforeUnmount,useTemplateRef } from 'vue'
+import { ref, onMounted, onBeforeUnmount, useTemplateRef, nextTick } from 'vue'
 import { useKeyEventState } from '@/stores/dialog'
-import { saveFile } from '@/utils';
-import { install,installPWA } from '@/api/api';
+import { filterZip, saveFile } from '@/utils';
+import { install, installPWA } from '@/api/api';
 
-const keyEventState=useKeyEventState();
+const keyEventState = useKeyEventState();
 
-const url=ref("")
-const picker=ref(null)
-const focuable=[
-    useTemplateRef('zipBtn'),
+const url = ref("")
+const zipFileList = ref([])
+const focuable = [
     useTemplateRef('pwaUrl'),
     useTemplateRef('pwaBtn')
 ]
+const zipFileRef = ref([])
 
-const onInstallPWA=async()=>{
-    try{
-        await installPWA(url.value)
-    }catch(e){
-        console.error(e)
-        alert(e.message)
-    }
-}
-
-const onFilePick=async(evt)=>{
-    const file=evt.target.files[0]
-    evt.target.value=null
-    try{
-        const fullPath=await saveFile(file,"tmp.zip")
-        await install(fullPath)
-    }catch(e){
-        console.error(e)
-        alert(e.message)
-    }
-}
-
-const onKeyDown=(evt)=>{
-    if(keyEventState.dialogShow){
+const onInstallZip = async (file) => {
+    if (!window.confirm(`Confirm to install '${file.name}'?`)) {
         return
     }
-    let focusedIndex=-1;
-    for(let i=0;i<focuable.length;i++){
-        if(document.activeElement==focuable[i].value){
-            focusedIndex=i;
+    try {
+        const fullPath = await saveFile(file, "tmp.zip")
+        await install(fullPath)
+    } catch (e) {
+        console.error(e)
+        alert(e.message)
+    }
+}
+
+const onInstallPWA = async () => {
+    try {
+        await installPWA(url.value)
+    } catch (e) {
+        console.error(e)
+        alert(e.message)
+    }
+}
+
+const onKeyDown = (evt) => {
+    if (keyEventState.dialogShow) {
+        return
+    }
+    let focusedIndex = -1;
+    for (let i = 0; i < focuable.length; i++) {
+        if (document.activeElement == focuable[i].value) {
+            focusedIndex = i;
             break;
         }
     }
-    if(focusedIndex<0){
+    if (focusedIndex < 0) {
         focuable[0].value.focus()
         return
     }
-    if(evt.key=="ArrowUp"){
+    if (evt.key == "ArrowUp") {
         focusedIndex--
-        if(focusedIndex<0){
-            focusedIndex=focuable.length-1
+        if (focusedIndex < 0) {
+            focusedIndex = focuable.length - 1
         }
         focuable[focusedIndex].value.focus()
-    }else if(evt.key=="ArrowDown"){
+        focuable[focusedIndex].value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    } else if (evt.key == "ArrowDown") {
         focusedIndex++
-        if(focusedIndex>=focuable.length){
-            focusedIndex=0
+        if (focusedIndex >= focuable.length) {
+            focusedIndex = 0
         }
         focuable[focusedIndex].value.focus()
+        focuable[focusedIndex].value.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
 }
 
-onMounted(()=>{
+onMounted(async () => {
     focuable[0].value.focus()
-    document.addEventListener("keydown",onKeyDown)
+    document.addEventListener("keydown", onKeyDown)
+    const list = await filterZip()
+    zipFileList.value = list
+    nextTick(() => {
+        focuable.push(...zipFileRef.value.map(o => { return { value: o } }))
+    })
 })
-onBeforeUnmount(()=>{
-    document.removeEventListener("keydown",onKeyDown)
+onBeforeUnmount(() => {
+    document.removeEventListener("keydown", onKeyDown)
 })
 
 </script>
@@ -109,12 +122,23 @@ onBeforeUnmount(()=>{
     &>h4:not(:first-child) {
         margin-top: 20px;
     }
-    &>.picker{
+
+    &>.picker {
         display: none;
     }
+
     &>.url {
         width: 100%;
         height: 20px;
     }
+}
+
+.zip-file {
+    width: 100%;
+}
+
+.zip-file:not(:first-child),
+.install-pwa {
+    margin-top: 5px;
 }
 </style>
