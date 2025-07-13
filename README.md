@@ -1,3 +1,7 @@
+# Deprecated
+
+Please visit [OStore-Solid](https://github.com/gogogoghost/ostore-solid)
+
 # OStore
 
 Orange app store for kaios 3.1
